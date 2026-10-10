@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ note.title }}{% endblock %}
+
+{% block content %}
+<main class="container note-detail-page">
+  <nav class="note-detail-navigation" aria-label="Note navigation">
+    <a href="{% url 'student_notes' %}" class="btn-back">All notes</a>
+    <a href="{% url 'student_dashboard' %}" class="btn btn-sm btn-link">Student dashboard</a>
+  </nav>
+  <article class="note-sheet">
+    <header class="note-detail-header">
+      <div>
+        <span class="note-detail-course">{{ note.course.title|default:'Personal note' }}</span>
+        <h1>{{ note.title }}</h1>
+        <p>Updated {{ note.updated_at|date:'F j, Y · H:i' }}</p>
+      </div>
+      <div class="note-detail-actions">
+        <a href="{% url 'student_note_update' note.pk %}" class="btn btn-task">Edit note</a>
+        <form method="post" action="{% url 'student_note_delete' note.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger">Delete</button>
+        </form>
+      </div>
+    </header>
+    <div class="note-detail-content">{{ note.content|linebreaks }}</div>
+  </article>
+</main>
+<style>
+  .note-detail-page { max-width: 900px; padding-top: 2.25rem; padding-bottom: 4rem; }
+  .note-detail-navigation { display: flex; align-items: center; gap: 0.4rem; }
+  .note-detail-navigation .btn { border-radius: 7px; }
+  .note-sheet { margin-top: 1rem; padding: clamp(1.25rem, 4vw, 2.5rem); border: 1px solid #e2e8e9; border-radius: 10px; background: rgba(255,255,255,0.94); box-shadow: 0 14px 34px rgba(27,49,58,0.06); }
+  .note-detail-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; padding-bottom: 1.4rem; border-bottom: 1px solid #e8edef; }
+  .note-detail-course { color: #176b58; font-size: 0.77rem; font-weight: 750; }
+  .note-detail-header h1 { margin: 0.35rem 0; color: #1d2b36; font-size: 1.8rem; font-weight: 750; overflow-wrap: anywhere; }
+  .note-detail-header p { margin: 0; color: #687783; font-size: 0.84rem; }
+  .note-detail-actions { display: flex; flex: 0 0 auto; gap: 0.45rem; }
+  .note-detail-actions .btn { border-radius: 7px; font-weight: 600; }
+  .note-detail-content { padding-top: 1.6rem; color: #344650; line-height: 1.8; overflow-wrap: anywhere; }
+  .note-detail-content p:last-child { margin-bottom: 0; }
+  @media (max-width: 650px) { .note-detail-header { flex-direction: column; } }
+  @media (max-width: 420px) { .note-detail-actions { width: 100%; } .note-detail-actions .btn { flex: 1; } }
+</style>
+{% endblock %}

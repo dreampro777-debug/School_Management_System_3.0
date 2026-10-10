@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+
+{% block title %}SchoolFlow | Login{% endblock %}
+
+{% block content %}
+<div class="auth-shell login-shell">
+  <div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+      <div class="col-lg-10">
+        <div class="row g-0 shadow-lg rounded-4 overflow-hidden login-panel animate__animated animate__fadeInUp">
+          <div class="col-lg-6 d-none d-lg-flex position-relative panel-visual">
+            <div class="overlay"></div>
+            <div class="content position-relative p-5 text-white">
+              <span class="badge bg-white text-primary mb-3 px-3 py-2 rounded-pill">Smart education</span>
+              <h1 class="display-6 fw-bold mb-3">Manage learning with clarity</h1>
+              <p class="lead opacity-75 mb-4">
+                Empower teachers, simplify student work, and keep every classroom activity in one place.
+              </p>
+              <ul class="list-unstyled small">
+                <li class="mb-2">✔ Role-based dashboards</li>
+                <li class="mb-2">✔ Assignment tracking</li>
+                <li class="mb-2">✔ Course and grading control</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-lg-6 form-side p-4 p-md-5">
+            <div class="text-center mb-4">
+              <div class="brand-icon mb-3 mx-auto">S</div>
+              <div class="badge-pill mb-3">Student & Teacher Portal</div>
+              <h2 class="fw-bold mb-1">Welcome back</h2>
+              <p class="text-secondary mb-0">Sign in to your student or teacher portal</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="mt-4 login-form">
+              {% csrf_token %}
+
+              {% for field in form %}
+                {% if field.name != 'remember_me' %}
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-dark" for="{{ field.id_for_label }}">
+                      {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                      <div class="text-danger small mt-1">{{ field.errors }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              {% endfor %}
+
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="remember_me" id="rememberMe">
+                  <label class="form-check-label text-secondary" for="rememberMe">Remember me</label>
+                </div>
+                <a href="{% url 'password_reset' %}" class="small text-primary text-decoration-none">Forgot password?</a>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100 py-3 fw-semibold rounded-pill">Login</button>
+
+              <div class="text-center mt-4">
+                <p class="mb-0 text-secondary">Don’t have an account?</p>
+                <a href="{% url 'register' %}" class="btn btn-outline-primary w-100 mt-2 rounded-pill">Create account</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .login-shell {
+    background: radial-gradient(circle at top left, #dbeafe 0%, #eef6ff 30%, #f8fafc 100%);
+  }
+
+  .auth-shell {
+    padding: 24px 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .auth-shell > .container {
+    width: 100%;
+  }
+
+  .login-panel {
+    border-radius: 30px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    overflow: hidden;
+    max-width: 100%;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(18px);
+  }
+
+  .panel-visual {
+    background: linear-gradient(135deg, #1d4ed8 0%, #312e81 100%);
+    min-height: 620px;
+  }
+
+  .panel-visual .overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top left, rgba(255,255,255,0.18), transparent 40%);
+  }
+
+  .panel-visual .content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .form-side {
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .brand-icon {
+    width: 60px;
+    height: 60px;
+    display: grid;
+    place-items: center;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #2563eb, #8b5cf6);
+    color: white;
+    font-weight: 800;
+    font-size: 1.5rem;
+    box-shadow: 0 16px 35px rgba(79, 70, 229, 0.25);
+  }
+
+  .badge-pill {
+    display: inline-block;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.10);
+    color: #1d4ed8;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .login-form input {
+    height: 54px;
+    border-radius: 16px !important;
+    border: 1.5px solid #dfe7f5 !important;
+    background: #f8fbff !important;
+    padding-left: 16px !important;
+    transition: all 0.2s ease;
+  }
+
+  .login-form input:focus {
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12) !important;
+    background: white !important;
+  }
+
+  .btn-primary {
+    border-radius: 14px;
+    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.2);
+  }
+
+  @media (max-width: 991.98px) {
+    .auth-shell {
+      padding: 16px 0;
+    }
+
+    .login-panel {
+      border-radius: 22px;
+      margin: 0 8px;
+    }
+
+    .form-side {
+      padding: 1.5rem !important;
+    }
+
+    .panel-visual {
+      min-height: 220px;
+    }
+
+    .text-center h2 {
+      font-size: clamp(2rem, 4vw, 2.5rem);
+    }
+
+    .d-flex.justify-content-between.align-items-center {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 10px;
+    }
+  }
+</style>
+{% endblock %}

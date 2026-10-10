@@ -1,0 +1,435 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-3">
+      <div class="sidebar p-3 animate__animated animate__fadeInLeft">
+        <h4 class="fw-bold mb-4">Student Panel</h4>
+        <nav class="nav flex-column gap-2">
+          <a class="nav-link active bg-white text-dark px-3 py-2" href="#overview">Overview</a>
+          <a class="nav-link px-3 py-2" href="#courses">Courses</a>
+          <a class="nav-link px-3 py-2" href="{% url 'student_teacher_directory' %}">Teachers</a>
+          <a class="nav-link px-3 py-2" href="#assignments">Assignments</a>
+          <a class="nav-link sidebar-feature-link" href="{% url 'student_notes' %}">
+            <span class="sidebar-feature-mark" aria-hidden="true">N</span>
+            <span class="sidebar-feature-copy">Study Notes<small>Review and organize your notes</small></span>
+          </a>
+          <a class="nav-link sidebar-feature-link" href="#grades">
+            <span class="sidebar-feature-mark" aria-hidden="true">G</span>
+            <span class="sidebar-feature-copy">Grades<small>See marks and teacher feedback</small></span>
+          </a>
+        </nav>
+      </div>
+    </div>
+    <div class="col-lg-9" id="overview">
+      <section class="dashboard-header">
+        <div class="dashboard-header-title">
+          <span class="dashboard-kicker">Student Workspace</span>
+          <h2 class="fw-bold mb-1">Student Dashboard</h2>
+          <p class="text-muted mb-0">Welcome back, {{ user.get_full_name|default:user.username }}. Track your learning progress.</p>
+        </div>
+        <div class="dashboard-actions">
+          <a href="{% url 'student_teacher_directory' %}" class="btn btn-outline-primary">Meet your teachers</a>
+          <a href="{% url 'student_course_catalog' %}" class="btn btn-task">Browse courses</a>
+          <a href="{% url 'student_note_create' %}" class="btn btn-task">+ New study note</a>
+        </div>
+      </section>
+
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card stat-card p-3 card-hover border-0 bg-gradient-success text-white">
+            <small class="text-white-50">Enrolled</small>
+            <h3 class="mt-2 mb-0">{{ total_courses|default:0 }}</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card stat-card p-3 card-hover border-0 bg-gradient-info text-white">
+            <small class="text-white-50">Assignments</small>
+            <h3 class="mt-2 mb-0">{{ total_assignments|default:0 }}</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card stat-card p-3 card-hover border-0 bg-gradient-warning text-dark">
+            <small class="text-dark">Submitted</small>
+            <h3 class="mt-2 mb-0">{{ total_submissions|default:0 }}</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card stat-card p-3 card-hover border-0 bg-gradient-notes text-white">
+            <small class="text-white-50">Study Notes</small>
+            <h3 class="mt-2 mb-0">{{ total_notes|default:0 }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-xl-7" id="courses">
+          <div class="card glass-card border-0 p-4 shadow-sm">
+            <h4 class="fw-bold mb-3">My Courses</h4>
+            {% if enrolled_courses %}
+              {% for course in enrolled_courses %}
+                <div class="card card-hover border-0 bg-light mb-3 p-3">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <h5 class="mb-1">{{ course.title }}</h5>
+                      <p class="text-muted small mb-0">{{ course.assignments.count }} assignments</p>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary">Active</span>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted mb-0">You are not enrolled in any course yet.</p>
+            {% endif %}
+
+            {% if available_courses %}
+              <div class="mt-4">
+                <h6 class="fw-bold mb-3">Available to enroll</h6>
+                {% for course in available_courses %}
+                  <div class="d-flex justify-content-between align-items-center border rounded p-3 mb-2">
+                    <div>
+                      <div class="fw-semibold">{{ course.title }}</div>
+                      <small class="text-muted d-block">{{ course.created_by.get_full_name|default:course.created_by.username }}</small>
+                    </div>
+                    <div class="d-flex align-items-center flex-wrap justify-content-end gap-2">
+                      <a href="{% url 'student_teacher_profile' course.created_by.pk %}" class="btn-profile-link">View teacher profile</a>
+                      <form method="post" action="{% url 'enroll_course' course.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-task btn-dashboard-compact">Enroll</button>
+                      </form>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-xl-5" id="assignments">
+          <div class="card glass-card border-0 p-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="fw-bold mb-0">Assignments</h4>
+              <span class="badge bg-success-subtle text-success">{{ total_assignments }} total</span>
+            </div>
+            {% if assignment_rows %}
+              {% for row in assignment_rows %}
+                {% with assignment=row.assignment submission=row.submission %}
+                  <div class="border rounded p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-start gap-3">
+                      <div>
+                        <div class="fw-semibold">{{ assignment.title }}</div>
+                        <small class="text-muted d-block">{{ assignment.course.title }} • Due {{ assignment.due_date|date:'M d, Y' }}</small>
+                        <small class="text-muted d-block mt-1">{{ assignment.description }}</small>
+                        {% if submission %}
+                          <small class="text-muted d-block mt-1">
+                            {% if submission.grade is not None %}
+                              Grade: {{ submission.grade }} / 100
+                            {% else %}
+                              Status: Pending grading
+                            {% endif %}
+                          </small>
+                        {% endif %}
+                      </div>
+                      {% if submission %}
+                        <div class="d-flex gap-2">
+                          <a href="{% url 'submit_assignment' assignment.pk %}" class="btn btn-sm btn-student-action btn-dashboard-compact">Update</a>
+                          <form method="post" action="{% url 'delete_submission' submission.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                          </form>
+                        </div>
+                      {% else %}
+                        <a href="{% url 'submit_assignment' assignment.pk %}" class="btn btn-sm btn-student-action">Submit</a>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endwith %}
+              {% endfor %}
+            {% else %}
+              <p class="text-muted mb-0">No assignments available.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <section class="card glass-card border-0 p-4 shadow-sm mt-4" id="study-notes">
+        <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+          <div>
+            <h4 class="fw-bold mb-1">Study Notes</h4>
+            <p class="text-muted small mb-0">Keep your course takeaways in one place.</p>
+          </div>
+          <a href="{% url 'student_notes' %}" class="btn btn-sm btn-outline-primary">View all</a>
+        </div>
+        {% if recent_notes %}
+          <div class="row g-3">
+            {% for note in recent_notes %}
+              <div class="col-md-4">
+                <a class="student-note-preview" href="{% url 'student_note_detail' note.pk %}">
+                  <span class="student-note-course">{{ note.course.title|default:'Personal note' }}</span>
+                  <strong>{{ note.title }}</strong>
+                  <span class="student-note-date">Updated {{ note.updated_at|date:'M d' }}</span>
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="student-note-empty">
+            <span class="student-note-empty-mark" aria-hidden="true">+</span>
+            <div>
+              <strong>Your notes start here</strong>
+              <p class="small text-muted mb-0">Save revision points, questions, and ideas as you study.</p>
+            </div>
+            <a href="{% url 'student_note_create' %}" class="btn btn-sm btn-task ms-md-auto">Create a note</a>
+          </div>
+        {% endif %}
+      </section>
+
+      <div class="card glass-card border-0 p-4 shadow-sm mt-4" id="grades">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="fw-bold mb-0">Grades & Feedback</h4>
+          <span class="badge bg-primary-subtle text-primary">{{ submissions|length }} records</span>
+        </div>
+
+        {% if submissions %}
+          {% for submission in submissions %}
+            <div class="border rounded p-3 mb-3">
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <div>
+                  <div class="fw-semibold">{{ submission.assignment.title }}</div>
+                  <small class="text-muted">{{ submission.assignment.course.title }}</small>
+                </div>
+                {% if submission.grade is not None %}
+                  <span class="badge bg-success text-white">{{ submission.grade }}/100</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Pending</span>
+                {% endif %}
+              </div>
+
+              {% if submission.feedback %}
+                <div class="small text-secondary">
+                  <strong>Feedback:</strong> {{ submission.feedback }}
+                </div>
+              {% elif submission.grade is not None %}
+                <div class="small text-secondary">No written feedback added yet.</div>
+              {% else %}
+                <div class="small text-secondary">Waiting for your teacher to grade this submission.</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted mb-0">No grades or feedback have been issued yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background: linear-gradient(135deg, #eefaf7, #ffffff);
+    border: 1px solid rgba(16, 185, 129, 0.14);
+    border-radius: 24px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 14px 40px rgba(5, 150, 105, 0.08);
+    margin-bottom: 1rem;
+    animation: riseIn 640ms ease both;
+  }
+
+  .dashboard-header-title {
+    flex: 1 1 250px;
+  }
+
+  .dashboard-kicker {
+    display: inline-block;
+    color: #059669;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.32rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.10);
+    margin-bottom: 0.50rem;
+  }
+
+  .dashboard-header h2 {
+    font-size: clamp(1.8rem, 2vw, 2.7rem);
+    margin-top: 0.2rem;
+    color: #102a27;
+  }
+
+  .dashboard-header .text-muted {
+    color: #66728a !important;
+  }
+
+  .dashboard-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    flex: 1 1 auto;
+  }
+
+  .dashboard-actions .btn {
+    border-radius: 999px;
+    padding: 0.72rem 1.12rem;
+    font-weight: 700;
+    font-size: 0.84rem;
+    transition: transform 260ms ease, box-shadow 260ms ease, background 260ms ease, color 260ms ease, border-color 260ms ease;
+  }
+
+  .dashboard-actions .btn-primary {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: 1px solid #10b981;
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.16);
+  }
+
+  .dashboard-actions .btn-success {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    color: #fff;
+    border: 1px solid #34d399;
+    box-shadow: 0 10px 20px rgba(16, 185, 129, 0.16);
+  }
+
+  .dashboard-actions .btn-primary:hover,
+  .dashboard-actions .btn-success:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 14px 34px rgba(16, 185, 129, 0.22);
+  }
+
+  .btn-dashboard-compact {
+    min-height: 32px;
+    padding: 0.32rem 0.62rem;
+    border-radius: 6px;
+    font-size: 0.76rem;
+    line-height: 1.15;
+    white-space: nowrap;
+    box-shadow: none;
+  }
+
+  .btn-student-action {
+    border: 1px solid #e7b928;
+    border-radius: 7px;
+    background: #f5c842;
+    color: #493500;
+    font-weight: 750;
+    box-shadow: 0 3px 9px rgba(180, 130, 15, 0.13);
+    transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  }
+
+  .btn-student-action:hover {
+    transform: translateY(-1px);
+    border-color: #d6a817;
+    background: #f0b91d;
+    color: #382900;
+    box-shadow: 0 5px 12px rgba(180, 130, 15, 0.2);
+  }
+
+  .btn-dashboard-compact:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(23, 107, 88, 0.18);
+  }
+
+  @media (max-width: 767.98px) {
+    .dashboard-header {
+      align-items: flex-start;
+    }
+
+    .dashboard-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+    }
+
+    .dashboard-actions .btn {
+      width: 100%;
+      white-space: normal;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .dashboard-actions {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .bg-gradient-success { background: linear-gradient(135deg, #10b981, #059669); }
+  .bg-gradient-info { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+  .bg-gradient-warning { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+  .bg-gradient-notes { background: linear-gradient(135deg, #168c83, #176b58); }
+
+  .student-note-preview {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 0.45rem;
+    padding: 1rem;
+    border: 1px solid #e1ebe7;
+    border-radius: 10px;
+    background: rgba(246, 250, 248, 0.9);
+    color: #20313b;
+    text-decoration: none;
+    transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
+  }
+
+  .student-note-preview:hover {
+    transform: translateY(-2px);
+    border-color: #9bc9ba;
+    background: #fff;
+    color: #176b58;
+  }
+
+  .student-note-course,
+  .student-note-date {
+    color: #657a76;
+    font-size: 0.76rem;
+  }
+
+  .student-note-preview strong {
+    overflow-wrap: anywhere;
+  }
+
+  .student-note-empty {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+    padding: 1rem;
+    border: 1px dashed #bdd4ca;
+    border-radius: 10px;
+    background: #f7faf8;
+  }
+
+  .student-note-empty-mark {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: #e1f0e9;
+    color: #176b58;
+    font-size: 1.35rem;
+    font-weight: 500;
+  }
+
+  @keyframes riseIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+{% endblock %}

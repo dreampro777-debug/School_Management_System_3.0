@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-3">
+      <div class="sidebar p-3 animate__animated animate__fadeInLeft">
+        <h4 class="fw-bold mb-4">Teacher Panel</h4>
+        <nav class="nav flex-column gap-2">
+          <a class="nav-link active bg-white text-dark px-3 py-2" href="#overview">Overview</a>
+          <a class="nav-link px-3 py-2" href="#courses">Courses</a>
+          <a class="nav-link px-3 py-2" href="#assignments">Assignments</a>
+          <a class="nav-link px-3 py-2" href="#submissions">Submissions</a>
+          <a class="nav-link sidebar-feature-link" href="{% url 'teacher_student_directory' %}">
+            <span class="sidebar-feature-mark" aria-hidden="true">S</span>
+            <span class="sidebar-feature-copy">Students<small>View learners in your classes</small></span>
+          </a>
+        </nav>
+      </div>
+    </div>
+    <div class="col-lg-9" id="overview">
+      <section class="teacher-dashboard-header">
+        <div class="teacher-dashboard-title">
+          <span class="dashboard-kicker">Teacher Workspace</span>
+          <h2 class="fw-bold mb-1">Teacher Dashboard</h2>
+          <p class="text-muted mb-0">Welcome back, {{ user.get_full_name|default:user.username }}</p>
+        </div>
+        <div class="teacher-dashboard-actions">
+          <a href="{% url 'course_list' %}" class="btn btn-manage">Manage courses</a>
+          <a href="{% url 'assignment_list' %}" class="btn btn-manage">Manage assignments</a>
+          <a href="{% url 'course_create' %}" class="btn btn-create">+ Create course</a>
+          <a href="{% url 'assignment_create' %}" class="btn btn-create btn-create-soft">+ Create assignment</a>
+        </div>
+      </section>
+
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-4">
+          <div class="card stat-card p-3 card-hover border-0 bg-gradient-primary text-white">
+            <small class="text-white-50">Courses</small>
+            <h3 class="mt-2 mb-0">{{ total_courses|default:0 }}</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="card stat-card p-3 card-hover border-0 bg-gradient-violet text-white">
+            <small class="text-white-50">Assignments</small>
+            <h3 class="mt-2 mb-0">{{ total_assignments|default:0 }}</h3>
+          </div>
+        </div>
+        <div class="col-6 col-md-4">
+          <div class="card stat-card p-3 card-hover border-0 bg-gradient-orange text-dark">
+            <small class="text-dark">Graded</small>
+            <h3 class="mt-2 mb-0">{{ graded_count|default:0 }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-xl-7" id="courses">
+          <div class="card glass-card border-0 p-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="fw-bold mb-0">Your Courses</h4>
+              <a href="{% url 'course_list' %}" class="btn btn-sm btn-outline-primary">View all</a>
+            </div>
+            {% if courses %}
+              {% for course in courses %}
+                <div class="card card-hover border-0 bg-light mb-3 p-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h5 class="mb-1">{{ course.title }}</h5>
+                      <p class="text-muted small mb-0">{{ course.students.count }} students enrolled</p>
+                    </div>
+                    <span class="badge bg-success-subtle text-success">Open</span>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted mb-0">No courses yet.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-xl-5" id="submissions">
+          <div class="card glass-card border-0 p-4 shadow-sm">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="fw-bold mb-3">Recent Submissions</h4>
+              <a href="{% url 'review_submissions' %}" class="btn btn-sm btn-outline-primary">Review</a>
+            </div>
+            {% if recent_submissions %}
+              {% for submission in recent_submissions %}
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                  <div>
+                    <div class="fw-semibold">{{ submission.student.get_full_name|default:submission.student.username }}</div>
+                    <small class="text-muted">{{ submission.assignment.title }}</small>
+                  </div>
+                  <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                    <a class="btn-profile-link" href="{% url 'teacher_student_profile' submission.student.pk %}">View profile</a>
+                    {% if submission.grade is not None %}
+                      <span class="badge bg-success text-white">{{ submission.grade }}</span>
+                    {% else %}
+                      <a href="{% url 'grade_submission' submission.pk %}" class="btn btn-sm btn-task">Grade</a>
+                    {% endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted mb-0">No recent submissions.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .teacher-dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background: linear-gradient(135deg, #eef4ff, #ffffff);
+    border: 1px solid rgba(97, 126, 255, 0.14);
+    border-radius: 24px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 14px 40px rgba(48, 63, 115, 0.08);
+    margin-bottom: 1rem;
+    animation: riseIn 640ms ease both;
+  }
+
+  .teacher-dashboard-title {
+    flex: 1 1 250px;
+  }
+
+  .dashboard-kicker {
+    display: inline-block;
+    color: #4f46e5;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.32rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(79, 70, 229, 0.10);
+    margin-bottom: 0.50rem;
+  }
+
+  .teacher-dashboard-header h2 {
+    font-size: clamp(1.8rem, 2vw, 2.7rem);
+    margin-top: 0.2rem;
+    color: #202b45;
+  }
+
+  .teacher-dashboard-header .text-muted {
+    color: #66728a !important;
+  }
+
+  .teacher-dashboard-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    flex: 1 1 auto;
+  }
+
+  .teacher-dashboard-actions .btn {
+    border-radius: 999px;
+    padding: 0.72rem 1.12rem;
+    font-weight: 700;
+    font-size: 0.84rem;
+    transition: transform 260ms ease, box-shadow 260ms ease, background 260ms ease, color 260ms ease, border-color 260ms ease;
+  }
+
+  .teacher-dashboard-actions .btn-manage {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+  }
+
+  .teacher-dashboard-actions .btn-manage:hover {
+    color: #fff;
+    background: #334155;
+    border-color: #334155;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(51, 65, 85, 0.22);
+  }
+
+  .teacher-dashboard-actions .btn-create {
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    color: #fff;
+    border: 1px solid #2563eb;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.16);
+  }
+
+  .teacher-dashboard-actions .btn-create-soft {
+    background: linear-gradient(135deg, #fff, #eef2ff);
+    color: #4338ca;
+    border: 1px solid #a5b4fc;
+  }
+
+  .teacher-dashboard-actions .btn-create:hover,
+  .teacher-dashboard-actions .btn-create-soft:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 14px 34px rgba(79, 70, 229, 0.22);
+  }
+
+  .teacher-dashboard-actions .btn-create-soft:hover {
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+  }
+
+  @media (max-width: 991.98px) {
+    .teacher-dashboard-header {
+      align-items: flex-start;
+    }
+
+    .teacher-dashboard-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+    }
+
+    .teacher-dashboard-actions .btn {
+      width: 100%;
+      white-space: normal;
+    }
+  }
+
+  @media (max-width: 380px) {
+    .teacher-dashboard-actions {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .bg-gradient-primary { background: linear-gradient(135deg, #2563eb, #4f46e5); }
+  .bg-gradient-violet { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  .bg-gradient-orange { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+
+  @keyframes riseIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+{% endblock %}

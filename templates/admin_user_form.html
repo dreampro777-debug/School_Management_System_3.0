@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if mode == 'update' %}Edit User{% else %}Create User{% endif %}{% endblock %}
+
+{% block content %}
+<main class="container admin-form-page">
+  <div class="admin-form-heading">
+    <div>
+      <span class="admin-form-kicker">Account management</span>
+      <h1>{% if mode == 'update' %}Edit account{% else %}Create account{% endif %}</h1>
+      <p>{% if managed_user %}Update details for {{ managed_user.get_full_name|default:managed_user.username }}.{% else %}Add a teacher or student to SchoolFlow.{% endif %}</p>
+    </div>
+    <a href="{% url 'admin_dashboard' %}" class="admin-back-link">Back to overview</a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="admin-account-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <section class="form-section">
+      <div class="form-section-heading">
+        <span class="section-index">01</span>
+        <div>
+          <h2>Account</h2>
+          <p>Login details and school role</p>
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+          {{ form.username }}
+          {% for error in form.username.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+          {{ form.email }}
+          {% for error in form.email.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.role.id_for_label }}">Role</label>
+          {{ form.role }}
+          {% for error in form.role.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="form-section-heading">
+        <span class="section-index">02</span>
+        <div>
+          <h2>Personal details</h2>
+          <p>Optional contact and profile information</p>
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.first_name.id_for_label }}">First name</label>
+          {{ form.first_name }}
+          {% for error in form.first_name.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.last_name.id_for_label }}">Last name</label>
+          {{ form.last_name }}
+          {% for error in form.last_name.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.phone.id_for_label }}">Phone</label>
+          {{ form.phone }}
+          {% for error in form.phone.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="{{ form.address.id_for_label }}">Address</label>
+          {{ form.address }}
+          {% for error in form.address.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="{{ form.profile_image.id_for_label }}">Profile photo</label>
+          {{ form.profile_image }}
+          {% for error in form.profile_image.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="form-section">
+      <div class="form-section-heading">
+        <span class="section-index">03</span>
+        <div>
+          <h2>Password</h2>
+          <p>{% if mode == 'update' %}Leave both fields blank to keep the current password.{% else %}Set the initial password for this account.{% endif %}</p>
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.password1.id_for_label }}">Password</label>
+          {{ form.password1 }}
+          {% for error in form.password1.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="{{ form.password2.id_for_label }}">Confirm password</label>
+          {{ form.password2 }}
+          {% for error in form.password2.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <div class="form-actions">
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+      <button type="submit" class="btn btn-save">{% if mode == 'update' %}Save changes{% else %}Create account{% endif %}</button>
+    </div>
+  </form>
+</div>
+<style>
+  .admin-form-page {
+    max-width: 960px;
+    padding-top: 2.25rem;
+    padding-bottom: 3.5rem;
+  }
+
+  .admin-form-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-form-kicker {
+    color: #176b58;
+    font-size: 0.76rem;
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .admin-form-heading h1 {
+    margin: 0.35rem 0 0.25rem;
+    color: #1d2b36;
+    font-size: 1.85rem;
+    font-weight: 750;
+  }
+
+  .admin-form-heading p,
+  .form-section-heading p {
+    margin: 0;
+    color: #687783;
+  }
+
+  .admin-back-link {
+    flex: 0 0 auto;
+    color: #176b58;
+    font-size: 0.9rem;
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .admin-back-link:hover {
+    color: #125644;
+    text-decoration: underline;
+  }
+
+  .admin-account-form {
+    padding: clamp(1.1rem, 3vw, 2rem);
+    border: 1px solid #e2e8e9;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 14px 34px rgba(27, 49, 58, 0.06);
+  }
+
+  .form-section + .form-section {
+    margin-top: 1.75rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid #e8edef;
+  }
+
+  .form-section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    margin-bottom: 1.15rem;
+  }
+
+  .section-index {
+    display: grid;
+    place-items: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: #e9f3ef;
+    color: #176b58;
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  .form-section-heading h2 {
+    margin: 0 0 0.2rem;
+    color: #253640;
+    font-size: 1rem;
+    font-weight: 750;
+  }
+
+  .form-section-heading p {
+    font-size: 0.85rem;
+  }
+
+  .admin-account-form .form-label {
+    margin-bottom: 0.4rem;
+    color: #344650;
+    font-size: 0.85rem;
+    font-weight: 650;
+  }
+
+  .admin-account-form .form-control,
+  .admin-account-form .form-select {
+    min-height: 44px;
+    border-color: #d7e0e2;
+    border-radius: 7px;
+    background-color: #fff;
+    color: #20313b;
+    box-shadow: none;
+  }
+
+  .admin-account-form textarea.form-control {
+    min-height: 90px;
+  }
+
+  .admin-account-form .form-control:focus,
+  .admin-account-form .form-select:focus {
+    border-color: #4b9a83;
+    box-shadow: 0 0 0 3px rgba(23, 107, 88, 0.12);
+  }
+
+  .admin-account-form input[type="file"].form-control {
+    padding: 0.48rem 0.6rem;
+  }
+
+  .field-error {
+    margin-top: 0.35rem;
+    color: #b42318;
+    font-size: 0.82rem;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid #e8edef;
+  }
+
+  .form-actions .btn {
+    min-height: 42px;
+    border-radius: 7px;
+    padding: 0.55rem 1rem;
+    font-weight: 650;
+  }
+
+  .btn-save {
+    border: 1px solid #176b58;
+    background: #176b58;
+    color: #fff;
+  }
+
+  .btn-save:hover {
+    border-color: #125644;
+    background: #125644;
+    color: #fff;
+  }
+
+  @media (max-width: 575px) {
+    .admin-form-heading {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .form-actions {
+      flex-direction: column-reverse;
+    }
+
+    .form-actions .btn {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}

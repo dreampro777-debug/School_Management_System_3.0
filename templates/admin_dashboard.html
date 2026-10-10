@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-lg-3">
+      <div class="sidebar p-3 animate__animated animate__fadeInLeft">
+        <h4 class="fw-bold mb-4">Admin Panel</h4>
+        <nav class="nav flex-column gap-2">
+          <a class="nav-link active bg-white text-dark px-3 py-2" href="#overview">Overview</a>
+          <a class="nav-link px-3 py-2" href="#teachers">Teachers</a>
+          <a class="nav-link px-3 py-2" href="#students">Students</a>
+          <a class="nav-link px-3 py-2" href="#courses">Courses</a>
+          <a class="nav-link px-3 py-2" href="#assignments">Assignments</a>
+          <a class="nav-link px-3 py-2" href="#submissions">Submissions</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="col-lg-9" id="overview">
+      <section class="dashboard-header">
+        <div class="dashboard-header-title">
+          <span class="dashboard-kicker">Admin Workspace</span>
+          <h2 class="fw-bold mb-1">Admin Dashboard</h2>
+          <p class="text-muted mb-0">System-wide overview of all school records</p>
+        </div>
+        <div class="dashboard-actions">
+          <a href="{% url 'admin_user_create' %}" class="btn admin-create-button">Add Teacher or Student</a>
+        </div>
+      </section>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <div class="card stat-card p-3 card-hover bg-gradient-primary text-white">
+            <small class="text-white-50">Teachers</small>
+            <h3 class="mt-2 mb-0">{{ total_teachers|default:0 }}</h3>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card stat-card p-3 card-hover bg-gradient-violet text-white">
+            <small class="text-white-50">Students</small>
+            <h3 class="mt-2 mb-0">{{ total_students|default:0 }}</h3>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card stat-card p-3 card-hover bg-gradient-success text-white">
+            <small class="text-white-50">Courses</small>
+            <h3 class="mt-2 mb-0">{{ total_courses|default:0 }}</h3>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card stat-card p-3 card-hover bg-gradient-warning text-dark">
+            <small class="text-dark">Assignments</small>
+            <h3 class="mt-2 mb-0">{{ total_assignments|default:0 }}</h3>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card stat-card p-3 card-hover bg-gradient-info text-white">
+            <small class="text-white-50">Submissions</small>
+            <h3 class="mt-2 mb-0">{{ total_submissions|default:0 }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-xl-6" id="teachers">
+          <div class="card glass-card border-0 p-4 admin-user-panel">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+              <div>
+                <h4 class="fw-bold mb-1">Teachers</h4>
+                <small class="text-muted">Manage teaching accounts</small>
+              </div>
+              <span class="admin-count">{{ teachers|length }}</span>
+            </div>
+            {% if teachers %}
+              {% for teacher in teachers %}
+                <div class="admin-user-row">
+                  <span class="admin-user-avatar" aria-hidden="true">{% if teacher.first_name %}{{ teacher.first_name|first|upper }}{% else %}{{ teacher.username|first|upper }}{% endif %}</span>
+                  <div class="admin-user-identity">
+                    <div class="fw-semibold">{{ teacher.get_full_name|default:teacher.username }}</div>
+                    <small class="text-muted">{{ teacher.email|default:'No email address' }}</small>
+                  </div>
+                  <div class="admin-user-actions">
+                    <a href="{% url 'admin_user_update' teacher.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <form method="post" action="{% url 'admin_delete_user' teacher.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted mb-0">No teachers found.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-xl-6" id="students">
+          <div class="card glass-card border-0 p-4 admin-user-panel">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+              <div>
+                <h4 class="fw-bold mb-1">Students</h4>
+                <small class="text-muted">Manage student accounts</small>
+              </div>
+              <span class="admin-count">{{ students|length }}</span>
+            </div>
+            {% if students %}
+              {% for student in students %}
+                <div class="admin-user-row">
+                  <span class="admin-user-avatar student-avatar" aria-hidden="true">{% if student.first_name %}{{ student.first_name|first|upper }}{% else %}{{ student.username|first|upper }}{% endif %}</span>
+                  <div class="admin-user-identity">
+                    <div class="fw-semibold">{{ student.get_full_name|default:student.username }}</div>
+                    <small class="text-muted">{{ student.email|default:'No email address' }}</small>
+                  </div>
+                  <div class="admin-user-actions">
+                    <a href="{% url 'admin_user_update' student.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                    <form method="post" action="{% url 'admin_delete_user' student.pk %}" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted mb-0">No students found.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-xl-6" id="courses">
+          <div class="card glass-card border-0 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="fw-bold mb-0">Courses</h4>
+            </div>
+            {% if courses %}
+              {% for course in courses %}
+                <div class="border-bottom py-2">
+                  <div class="fw-semibold">{{ course.title }}</div>
+                  <small class="text-muted">Teacher: {{ course.created_by.get_full_name|default:course.created_by.username }}</small>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted mb-0">No courses available.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-xl-6" id="assignments">
+          <div class="card glass-card border-0 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="fw-bold mb-0">Assignments</h4>
+            </div>
+            {% if assignments %}
+              {% for assignment in assignments %}
+                <div class="border-bottom py-2">
+                  <div class="fw-semibold">{{ assignment.title }}</div>
+                  <small class="text-muted">{{ assignment.course.title }} • {{ assignment.created_by.username }}</small>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted mb-0">No assignments found.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="col-12" id="submissions">
+          <div class="card glass-card border-0 p-4">
+            <h4 class="fw-bold mb-3">Submissions</h4>
+            {% if submissions %}
+              {% for submission in submissions %}
+                <div class="border-bottom py-2">
+                  <div class="fw-semibold">{{ submission.student.get_full_name|default:submission.student.username }} → {{ submission.assignment.title }}</div>
+                  <small class="text-muted">Submitted {{ submission.submitted_at|date:'M d, Y H:i' }} • Grade: {{ submission.grade|default:'Pending' }}</small>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted mb-0">No submissions found.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    background: linear-gradient(135deg, #eef4ff, #ffffff);
+    border: 1px solid rgba(79, 70, 229, 0.14);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 14px 40px rgba(79, 70, 229, 0.08);
+    margin-bottom: 1rem;
+    animation: riseIn 640ms ease both;
+  }
+
+  .dashboard-header-title {
+    flex: 1 1 250px;
+  }
+
+  .dashboard-kicker {
+    display: inline-block;
+    color: #4f46e5;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.32rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(79, 70, 229, 0.10);
+    margin-bottom: 0.50rem;
+  }
+
+  .dashboard-header h2 {
+    font-size: clamp(1.8rem, 2vw, 2.7rem);
+    margin-top: 0.2rem;
+    color: #202b45;
+  }
+
+  .dashboard-header .text-muted {
+    color: #66728a !important;
+  }
+
+  .dashboard-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    flex: 1 1 auto;
+  }
+
+  .dashboard-actions .btn {
+    border-radius: 8px;
+    padding: 0.68rem 1rem;
+    font-weight: 700;
+    font-size: 0.84rem;
+    transition: transform 260ms ease, box-shadow 260ms ease, background 260ms ease, color 260ms ease, border-color 260ms ease;
+  }
+
+  .admin-create-button {
+    background: #176b58;
+    color: #fff;
+    border: 1px solid #176b58;
+  }
+
+  .admin-create-button:hover {
+    background: #125644;
+    border-color: #125644;
+    color: #fff;
+  }
+
+  .admin-user-panel {
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.045);
+  }
+
+  .admin-count {
+    display: grid;
+    place-items: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    border-radius: 8px;
+    background: #e9f1f1;
+    color: #176b58;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .admin-user-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.75rem 0;
+    border-top: 1px solid #e8edf0;
+  }
+
+  .admin-user-avatar {
+    display: grid;
+    place-items: center;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #e6f2ee;
+    color: #176b58;
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+
+  .student-avatar {
+    background: #edf1f8;
+    color: #435b77;
+  }
+
+  .admin-user-identity {
+    min-width: 0;
+    flex: 1;
+    overflow-wrap: anywhere;
+  }
+
+  .admin-user-actions {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.4rem;
+  }
+
+  .admin-user-actions .btn {
+    border-radius: 7px;
+    min-width: 58px;
+  }
+
+  @media (max-width: 520px) {
+    .admin-user-row {
+      flex-wrap: wrap;
+    }
+
+    .admin-user-identity {
+      flex-basis: calc(100% - 54px);
+    }
+
+    .admin-user-actions {
+      margin-left: 50px;
+    }
+  }
+
+  .dashboard-actions .btn-primary {
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    color: #fff;
+    border: 1px solid #4f46e5;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.16);
+  }
+
+  .dashboard-actions .btn-primary:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 14px 34px rgba(79, 70, 229, 0.22);
+  }
+
+  .bg-gradient-primary { background: linear-gradient(135deg, #2563eb, #4f46e5); }
+  .bg-gradient-violet { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  .bg-gradient-success { background: linear-gradient(135deg, #10b981, #059669); }
+  .bg-gradient-warning { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+  .bg-gradient-info { background: linear-gradient(135deg, #38bdf8, #2563eb); }
+
+  @keyframes riseIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+{% endblock %}

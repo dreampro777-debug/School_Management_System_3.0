@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Study Notes{% endblock %}
+
+{% block content %}
+<main class="container notes-page">
+  <header class="notes-heading">
+    <div>
+      <div class="notes-navigation">
+        <a href="{% url 'student_dashboard' %}" class="btn-back">Dashboard</a>
+      </div>
+      <h1>Study Notes</h1>
+      <p>Keep useful ideas, questions, and revision points together.</p>
+    </div>
+    <a href="{% url 'student_note_create' %}" class="btn notes-primary">New note</a>
+  </header>
+
+  <form method="get" class="notes-search">
+    <input type="search" name="q" value="{{ query }}" class="form-control" placeholder="Search your notes..." aria-label="Search study notes">
+    <button type="submit" class="btn btn-outline-secondary">Search</button>
+    {% if query %}<a href="{% url 'student_notes' %}" class="notes-clear">Clear</a>{% endif %}
+  </form>
+
+  {% if notes %}
+    <div class="notes-list">
+      {% for note in notes %}
+        <article class="note-row">
+          <div class="note-date" aria-hidden="true">{{ note.updated_at|date:'d' }}<span>{{ note.updated_at|date:'M' }}</span></div>
+          <div class="note-copy">
+            <span class="note-course">{{ note.course.title|default:'Personal note' }}</span>
+            <h2><a href="{% url 'student_note_detail' note.pk %}">{{ note.title }}</a></h2>
+            <p>{{ note.content|striptags|truncatechars:180 }}</p>
+          </div>
+          <div class="note-actions">
+            <a href="{% url 'student_note_detail' note.pk %}" class="btn btn-sm btn-outline-secondary">Read</a>
+            <a href="{% url 'student_note_update' note.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+            <form method="post" action="{% url 'student_note_delete' note.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <section class="notes-empty">
+      <span class="empty-mark" aria-hidden="true">N</span>
+      <h2>No notes yet</h2>
+      <p>Create a note for a course or keep it personal.</p>
+      <a href="{% url 'student_note_create' %}" class="btn notes-primary">Create your first note</a>
+    </section>
+  {% endif %}
+</main>
+<style>
+  .notes-page { max-width: 980px; padding-top: 2.25rem; padding-bottom: 4rem; }
+  .notes-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+  .notes-navigation { margin-bottom: 0.8rem; }
+  .notes-navigation .btn { border-radius: 7px; }
+  .notes-heading h1 { margin: 0.45rem 0 0.25rem; color: #1d2b36; font-size: 1.9rem; font-weight: 750; }
+  .notes-heading p { margin: 0; color: #687783; }
+  .notes-primary { border: 1px solid #176b58; border-radius: 7px; background: #176b58; color: white; font-weight: 650; padding: 0.62rem 0.95rem; }
+  .notes-primary:hover { border-color: #125644; background: #125644; color: white; }
+  .notes-search { display: flex; align-items: center; gap: 0.55rem; max-width: 620px; margin: 0 0 1.2rem; }
+  .notes-search .form-control { min-height: 42px; border-color: #d7e0e2; border-radius: 7px; box-shadow: none; }
+  .notes-search .form-control:focus { border-color: #4b9a83; box-shadow: 0 0 0 3px rgba(23,107,88,0.12); }
+  .notes-search .btn { min-height: 42px; border-radius: 7px; }
+  .notes-clear { color: #687783; font-size: 0.85rem; text-decoration: none; }
+  .notes-clear:hover { color: #176b58; text-decoration: underline; }
+  .notes-list { border-top: 1px solid #dfe7e7; }
+  .note-row { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid #dfe7e7; }
+  .note-date { display: grid; place-items: center; align-content: center; width: 48px; height: 52px; border-radius: 8px; background: #eaf3ef; color: #176b58; font-size: 1.1rem; font-weight: 750; line-height: 1.1; }
+  .note-date span { margin-top: 0.2rem; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; }
+  .note-copy { min-width: 0; }
+  .note-course { color: #647874; font-size: 0.76rem; font-weight: 650; }
+  .note-copy h2 { margin: 0.18rem 0 0.25rem; font-size: 1rem; font-weight: 700; }
+  .note-copy h2 a { color: #20313b; text-decoration: none; }
+  .note-copy h2 a:hover { color: #176b58; }
+  .note-copy p { display: -webkit-box; overflow: hidden; margin: 0; color: #687783; font-size: 0.88rem; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .note-actions { display: flex; align-items: center; gap: 0.4rem; }
+  .note-actions .btn { border-radius: 6px; }
+  .notes-empty { display: grid; justify-items: center; padding: 4rem 1rem; border: 1px dashed #bdd4ca; border-radius: 10px; background: rgba(255,255,255,0.68); text-align: center; }
+  .empty-mark { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px; background: #e1f0e9; color: #176b58; font-weight: 800; }
+  .notes-empty h2 { margin: 1rem 0 0.35rem; color: #253640; font-size: 1.1rem; font-weight: 750; }
+  .notes-empty p { margin-bottom: 1rem; color: #687783; }
+  @media (max-width: 700px) { .note-row { grid-template-columns: 44px minmax(0, 1fr); gap: 0.75rem; } .note-actions { grid-column: 2; } }
+  @media (max-width: 480px) { .notes-heading { align-items: flex-start; flex-direction: column; } .notes-search { flex-wrap: wrap; } .notes-search .form-control { flex-basis: 100%; } .note-actions { flex-wrap: wrap; } }
+</style>
+{% endblock %}

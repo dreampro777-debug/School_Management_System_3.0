@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Assignment{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="card glass-card border-0 p-4">
+        <h3 class="fw-bold mb-3">Submit Assignment</h3>
+        <p class="text-muted">{{ assignment.title }} • {{ assignment.course.title }}</p>
+
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Your Answer / Submission</label>
+            <textarea class="form-control" name="content" rows="8" required>{{ existing_submission.content|default:'' }}</textarea>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">Submit</button>
+            <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary">Back</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

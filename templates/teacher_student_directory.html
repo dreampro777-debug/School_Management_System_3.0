@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<main class="container py-5 profile-directory">
+  <header class="d-flex justify-content-between align-items-end flex-wrap gap-3 mb-4">
+    <div>
+      <p class="text-uppercase small fw-bold text-success mb-2">Teacher workspace</p>
+      <h1 class="h2 fw-bold mb-1">Students</h1>
+      <p class="text-muted mb-0">Students who have submitted work for your courses.</p>
+    </div>
+    <a href="{% url 'teacher_dashboard' %}" class="btn btn-outline-secondary">Back to panel</a>
+  </header>
+
+  <form method="get" class="directory-search mb-4">
+    <label class="visually-hidden" for="student-search">Search students</label>
+    <input id="student-search" class="form-control" type="search" name="q" value="{{ query }}" placeholder="Search by student name or username">
+    <button class="btn btn-primary" type="submit">Search</button>
+  </form>
+
+  {% if students %}
+    <div class="directory-list">
+      {% for student in students %}
+        <a class="directory-person" href="{% url 'teacher_student_profile' student.pk %}">
+          {% if student.profile_image %}
+            <img class="directory-avatar" src="{{ student.profile_image.url }}" alt="">
+          {% else %}
+            <span class="directory-avatar directory-avatar-initial">{{ student.first_name|default:student.username|slice:':1'|upper }}</span>
+          {% endif %}
+          <span class="directory-person-info">
+            <strong>{{ student.get_full_name|default:student.username }}</strong>
+            <span>@{{ student.username }}</span>
+          </span>
+          <span class="directory-person-meta">{{ student.submission_count }} submission{{ student.submission_count|pluralize }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="directory-empty">{% if query %}No students matched that search.{% else %}No students have submitted work for your courses yet.{% endif %}</p>
+  {% endif %}
+</main>
+<style>
+  .profile-directory { max-width: 960px; }
+  .directory-search { display: flex; gap: 0.65rem; max-width: 680px; }
+  .directory-search .form-control { min-height: 46px; }
+  .directory-list { border-top: 1px solid #dce5e4; }
+  .directory-person { display: flex; align-items: center; gap: 1rem; min-height: 86px; padding: 0.85rem 0.25rem; border-bottom: 1px solid #dce5e4; color: #20313b; text-decoration: none; }
+  .directory-person:hover { background: rgba(255,255,255,0.68); }
+  .directory-avatar { width: 52px; height: 52px; flex: 0 0 52px; border-radius: 50%; object-fit: cover; }
+  .directory-avatar-initial { display: grid; place-items: center; background: #dcefe8; color: #176b58; font-size: 1.1rem; font-weight: 750; }
+  .directory-person-info { display: grid; gap: 0.15rem; min-width: 0; }
+  .directory-person-info span, .directory-person-meta { color: #697781; font-size: 0.86rem; }
+  .directory-person-meta { margin-left: auto; text-align: right; }
+  .directory-empty { padding: 1.25rem; border: 1px dashed #b8c9c5; border-radius: 8px; color: #61716f; }
+  @media (max-width: 520px) { .directory-person { gap: 0.7rem; } .directory-person-meta { max-width: 82px; } }
+</style>
+{% endblock %}

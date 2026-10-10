@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if mode == 'update' %}Edit Study Note{% else %}New Study Note{% endif %}{% endblock %}
+
+{% block content %}
+<main class="container note-form-page">
+  <nav class="note-form-navigation" aria-label="Note navigation">
+    <a href="{% if note %}{% url 'student_note_detail' note.pk %}{% else %}{% url 'student_notes' %}{% endif %}" class="btn-back">{% if note %}Note{% else %}All notes{% endif %}</a>
+    <a href="{% url 'student_dashboard' %}" class="btn btn-sm btn-link">Student dashboard</a>
+  </nav>
+  <header class="note-form-heading">
+    <span>STUDENT WORKSPACE</span>
+    <h1>{% if mode == 'update' %}Edit your note{% else %}Capture a useful idea{% endif %}</h1>
+    <p>Connect it to a course, or keep it as a personal note.</p>
+  </header>
+
+  <form method="post" class="note-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="mb-4">
+      <label class="form-label" for="{{ form.title.id_for_label }}">Title</label>
+      {{ form.title }}
+      {% for error in form.title.errors %}<div class="note-error">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="mb-4">
+      <label class="form-label" for="{{ form.course.id_for_label }}">Course <span class="optional-label">Optional</span></label>
+      {{ form.course }}
+      {% for error in form.course.errors %}<div class="note-error">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="mb-4">
+      <label class="form-label" for="{{ form.content.id_for_label }}">Your note</label>
+      {{ form.content }}
+      {% for error in form.content.errors %}<div class="note-error">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="note-form-actions">
+      <a href="{% if note %}{% url 'student_note_detail' note.pk %}{% else %}{% url 'student_notes' %}{% endif %}" class="btn btn-outline-secondary">Cancel</a>
+      <button type="submit" class="btn note-save">{% if mode == 'update' %}Save changes{% else %}Save note{% endif %}</button>
+    </div>
+  </form>
+</main>
+<style>
+  .note-form-page { max-width: 820px; padding-top: 2rem; padding-bottom: 4rem; }
+  .note-form-navigation { display: flex; align-items: center; gap: 0.4rem; }
+  .note-form-navigation .btn { border-radius: 7px; }
+  .note-form-heading { margin: 1.1rem 0 1.4rem; }
+  .note-form-heading span { color: #176b58; font-size: 0.72rem; font-weight: 800; }
+  .note-form-heading h1 { margin: 0.4rem 0 0.25rem; color: #1d2b36; font-size: 1.85rem; font-weight: 750; }
+  .note-form-heading p { margin: 0; color: #687783; }
+  .note-form { padding: clamp(1.1rem, 3vw, 2rem); border: 1px solid #e2e8e9; border-radius: 10px; background: rgba(255,255,255,0.94); box-shadow: 0 14px 34px rgba(27,49,58,0.06); }
+  .note-form .form-label { color: #344650; font-size: 0.87rem; font-weight: 650; }
+  .note-form .form-control, .note-form .form-select { min-height: 44px; border-color: #d7e0e2; border-radius: 7px; box-shadow: none; }
+  .note-form textarea.form-control { min-height: 250px; line-height: 1.6; }
+  .note-form .form-control:focus, .note-form .form-select:focus { border-color: #4b9a83; box-shadow: 0 0 0 3px rgba(23,107,88,0.12); }
+  .optional-label { margin-left: 0.25rem; color: #78878f; font-size: 0.77rem; font-weight: 500; }
+  .note-error { margin-top: 0.35rem; color: #b42318; font-size: 0.82rem; }
+  .note-form-actions { display: flex; justify-content: flex-end; gap: 0.6rem; padding-top: 1rem; border-top: 1px solid #e8edef; }
+  .note-form-actions .btn { min-height: 42px; border-radius: 7px; padding: 0.55rem 1rem; font-weight: 650; }
+  .note-save { border: 1px solid #176b58; background: #176b58; color: white; }
+  .note-save:hover { border-color: #125644; background: #125644; color: white; }
+  @media (max-width: 520px) { .note-form-actions { flex-direction: column-reverse; } .note-form-actions .btn { width: 100%; } }
+</style>
+{% endblock %}

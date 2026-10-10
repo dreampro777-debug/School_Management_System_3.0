@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Account{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+  <div class="mx-auto" style="max-width: 640px;">
+    <section class="card border-danger shadow-sm">
+      <div class="card-body p-4 p-md-5">
+        <p class="text-danger text-uppercase fw-bold small mb-2">Permanent action</p>
+        <h1 class="h3 mb-3">Delete your account?</h1>
+        <p class="text-muted">This permanently deletes your account and cannot be undone.</p>
+        {% if user.is_teacher %}
+          <p class="text-muted">Your courses and assignments will also be deleted, including related student submissions.</p>
+        {% else %}
+          <p class="text-muted">Your course enrollments, submissions, and study notes will be deleted.</p>
+        {% endif %}
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <form method="post" action="{% url 'delete_account' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Permanently delete account</button>
+          </form>
+          <a href="{% if user.is_teacher %}{% url 'teacher_dashboard' %}{% else %}{% url 'student_dashboard' %}{% endif %}" class="btn btn-outline-secondary">Keep my account</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+{% endblock %}

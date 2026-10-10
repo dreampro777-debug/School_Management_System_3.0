@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-label="SchoolFlow logo">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="220" height="220" rx="48" fill="#eef4ff"/>
+  <rect x="32" y="32" width="156" height="156" rx="38" fill="url(#g1)"/>
+  <text x="110" y="128" text-anchor="middle" font-size="88" font-family="Arial, sans-serif" font-weight="700" fill="white">S</text>
+</svg>

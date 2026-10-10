@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}SchoolFlow | Home{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="hero-section glass-card p-5 animate__animated animate__fadeInUp">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2">Smart school management</span>
+        <h1 class="display-5 fw-bold mt-3">A campus platform built for growing schools.</h1>
+        <p class="lead text-secondary mt-3">
+          Manage courses, assignments, student submissions, and role-based access from one modern dashboard.
+        </p>
+        <div class="d-flex flex-wrap gap-3 mt-4">
+          <a href="{% url 'teacher_dashboard' %}" class="btn btn-primary btn-lg">Teacher Portal</a>
+          <a href="{% url 'student_dashboard' %}" class="btn btn-success btn-lg">Student Portal</a>
+        </div>
+      </div>
+      <div class="col-lg-5">
+        <div class="card glass-card border-0 p-4 animate__animated animate__pulse animate__delay-1s">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">Overview</h5>
+            <span class="badge bg-success-subtle text-success">Live</span>
+          </div>
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="stat-card card bg-primary text-white p-3">
+                <small>Courses</small>
+                <h3 class="mt-2 mb-0">24</h3>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="stat-card card bg-warning text-white p-3">
+                <small>Assignments</small>
+                <h3 class="mt-2 mb-0">86</h3>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="stat-card card bg-success text-white p-3">
+                <small>Students</small>
+                <h3 class="mt-2 mb-0">420</h3>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="stat-card card bg-info text-white p-3">
+                <small>Submitted</small>
+                <h3 class="mt-2 mb-0">91%</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

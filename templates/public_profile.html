@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_role }} Profile{% endblock %}
+
+{% block content %}
+<main class="container py-5 public-profile">
+  <a class="btn-back mb-4" href="{% if profile_user.is_teacher %}{% url 'student_teacher_directory' %}{% else %}{% url 'teacher_student_directory' %}{% endif %}">{% if profile_user.is_teacher %}Teacher directory{% else %}Student directory{% endif %}</a>
+  <section class="profile-heading">
+    {% if profile_user.profile_image %}
+      <img class="profile-avatar" src="{{ profile_user.profile_image.url }}" alt="{{ profile_role }} profile photo">
+    {% else %}
+      <span class="profile-avatar profile-avatar-initial">{{ profile_user.first_name|default:profile_user.username|slice:':1'|upper }}</span>
+    {% endif %}
+    <div>
+      <span class="profile-role">{{ profile_role }}</span>
+      <h1>{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+      <p>@{{ profile_user.username }}</p>
+    </div>
+  </section>
+
+  {% if profile_user.is_teacher %}
+    <section class="profile-details">
+      <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-2 mb-3">
+        <h2>Courses taught</h2>
+        <span class="text-muted small">{{ teacher_courses|length }} course{{ teacher_courses|length|pluralize }}</span>
+      </div>
+      {% if teacher_courses %}
+        <div class="profile-activity-list">
+          {% for course in teacher_courses %}
+            <article class="profile-activity">
+              <strong>{{ course.title }}</strong>
+              <p class="mb-0">{{ course.description|default:'Course details will be shared in class.' }}</p>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">No courses are listed yet.</p>
+      {% endif %}
+    </section>
+  {% else %}
+    <section class="profile-details">
+      <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-2 mb-3">
+        <h2>Assignment participation</h2>
+        <span class="text-muted small">{{ student_submissions|length }} submission{{ student_submissions|length|pluralize }}</span>
+      </div>
+      <div class="profile-activity-list">
+        {% for submission in student_submissions %}
+          <article class="profile-activity">
+            <strong>{{ submission.assignment.title }}</strong>
+            <p class="mb-0">{{ submission.assignment.course.title }} · Submitted {{ submission.submitted_at|date:'M j, Y' }}</p>
+          </article>
+        {% empty %}
+          <p class="text-muted mb-0">No assignment activity is available.</p>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</main>
+<style>
+  .public-profile { max-width: 900px; }
+  .profile-heading { display: flex; align-items: center; gap: 1.25rem; padding: 1.5rem 0 2rem; border-bottom: 1px solid #dce5e4; }
+  .profile-avatar { width: 104px; height: 104px; flex: 0 0 104px; border-radius: 50%; object-fit: cover; }
+  .profile-avatar-initial { display: grid; place-items: center; background: #dcefe8; color: #176b58; font-size: 2rem; font-weight: 750; }
+  .profile-role { color: #176b58; font-size: 0.76rem; font-weight: 750; text-transform: uppercase; }
+  .profile-heading h1 { margin: 0.2rem 0; color: #20313b; font-size: 1.8rem; font-weight: 750; }
+  .profile-heading p { margin: 0; color: #697781; }
+  .profile-details { margin-top: 2rem; }
+  .profile-details h2 { margin: 0; color: #20313b; font-size: 1.15rem; font-weight: 750; }
+  .profile-activity-list { border-top: 1px solid #dce5e4; }
+  .profile-activity { padding: 1rem 0.25rem; border-bottom: 1px solid #dce5e4; }
+  .profile-activity p { margin-top: 0.25rem; color: #697781; font-size: 0.9rem; }
+  @media (max-width: 520px) { .profile-heading { align-items: flex-start; } .profile-avatar { width: 76px; height: 76px; flex-basis: 76px; } .profile-heading h1 { font-size: 1.45rem; } }
+</style>
+{% endblock %}
